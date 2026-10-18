@@ -22,7 +22,7 @@ add_library(ll-1.m STATIC
   src/tactic/contradiction_solver.cpp
   src/solver/dtt_solver.cpp
   src/tactic/induction_solver.cpp
-  src/training/basic_trainer.cpp
+  src/training/basic_trainer+impl.cpp
   src/solver/zfc_solver.cpp
 )
 

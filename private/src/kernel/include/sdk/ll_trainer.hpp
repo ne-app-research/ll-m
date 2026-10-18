@@ -7,7 +7,6 @@
 
 #include <sdk/ll_solver.hpp>
 #include <sdk/ll_model.hpp>
-#include <vector>
 
 namespace ll {
 

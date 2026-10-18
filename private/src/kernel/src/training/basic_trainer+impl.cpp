@@ -2,6 +2,7 @@
 // Copyright 2026, Ne.app.
 
 #include <sdk/ll_trainer.hpp>
+#include <ssl/sl_symbol.hpp>
 
 namespace ll {
 
@@ -55,10 +56,11 @@ void tensor_param::backprop(const std::vector<double> &flat_grad,
   grad_ijk.assign(nijk, 0.0);
 
   std::size_t idx{};
+
   for (std::size_t a{}; a < nijk; ++a) {
     for (std::size_t b{}; b < nij; ++b) {
       for (std::size_t c{}; c < ni; ++c, ++idx) {
-        const double g = flat_grad[idx];
+        const double& g = flat_grad[idx];
         grad_i[c] += g * T_ijk[a] * T_ij[b];
         grad_ij[b] += g * T_ijk[a] * T_i[c];
         grad_ijk[a] += g * T_ij[b] * T_i[c];
@@ -72,6 +74,8 @@ void tensor_param::backprop(const std::vector<double> &flat_grad,
 void cauchy_optimizer::step(std::vector<double> &theta,
                             const std::vector<double> &grad,
                             const std::vector<double> &fisher_diag) {
+  if (theta.empty()) return;
+  
   if (m_velocity_.size() != theta.size())
     m_velocity_.assign(theta.size(), 0.0);
 
@@ -147,7 +151,6 @@ factor_grads_t basic_trainer::factor_grads_(const double& base_loss) const {
 /// @brief step over the training of the model
 double basic_trainer::step() {
   const double loss = loss_();
-
   const auto grads = factor_grads_(loss);
 
   auto make_fisher = [](const std::vector<double> &g) {
@@ -170,6 +173,8 @@ double basic_trainer::step() {
   return loss;
 }
 
+/// @brief train geometric data until e is reached.
+/// @param epochs max epoch to be considered reachable.
 void basic_trainer::train(const int& epochs) {
   for (std::int32_t e{}; e < epochs; ++e) {
     if (step() == e) break;
