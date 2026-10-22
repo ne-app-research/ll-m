@@ -9,12 +9,12 @@
 
 namespace ll {
 
-bool construction_solver::build_witness(const theorem_params &thm,
+construction_solver::real_type construction_solver::build_witness(const theorem_params &thm,
                                         proof_params         &out) const {
   for (const auto &h : thm.hypotheses) {
     if (!m_zfc.validate(h)) {
       out.add_step("Set validation failed for: '" + h + "'.");
-      return false;
+      return _SSL_LOW_CONF;
     }
 
     out.add_step("Witness factor verified: '" + h + "'.");
@@ -24,26 +24,31 @@ bool construction_solver::build_witness(const theorem_params &thm,
     out.add_step("Type check failed: '" + thm.conclusion +
                  "' not derivable from the verified factors.");
     
-                 return false;
+    return _SSL_LOW_CONF;
   }
 
   out.add_step("Witness constructed: '" + thm.conclusion + "'. QED.");
-  return true;
+  return _SSL_X_CONF(5);
 }
 
 std::optional<proof_params>
 construction_solver::solve(const theorem_params &thm) {
+  if (thm.conclusion.empty()) return std::nullopt;
+
   proof_params out{};
   
   out.theorem = thm;
   out.add_step("Strategy: construction.");
+  auto ret = build_witness(thm, out);
 
-  if (!build_witness(thm, out)) {
+  if (ret == _SSL_LOW_CONF) {
     out.status = proof_status::inconclusive;
-    return std::nullopt;
+  } else if (ret == _SSL_X_CONF(5)) {
+    out.status = proof_status::inconclusive_proven;
+  } else {
+    out.status = proof_status::proven;
   }
 
-  out.status = proof_status::proven;
   return out;
 }
 

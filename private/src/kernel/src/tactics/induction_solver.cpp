@@ -30,18 +30,28 @@ bool induction_solver::check_step(const theorem_params &thm,
   return true;
 }
 
+/// @note solve assumes that all theorems and conjecture have been proven. If not, treat solve as inconclusive_proven.
 std::optional<proof_params> induction_solver::solve(const theorem_params &thm) {
+  if (thm.conclusion.empty()) return std::nullopt;
+
   proof_params out;
   out.theorem = thm;
   out.add_step("Strategy: induction.");
 
-  if (!check_base(thm, out) || !check_step(thm, out)) {
+  auto ret = check_base(thm, out);
+  auto ret2 = check_step(thm, out);
+
+  if (!ret || !ret2) {
     out.status = proof_status::inconclusive;
-    return std::nullopt;
+    return out;
+  } else if (ret || !ret2) {
+    out.status = proof_status::pending;
+    return out;
   }
 
   out.add_step("By induction, '" + thm.conclusion + "' holds. QED.");
   out.status = proof_status::proven;
+
   return out;
 }
 

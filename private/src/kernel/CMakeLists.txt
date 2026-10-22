@@ -18,12 +18,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(OCL_INCLUDE_DIR "" CACHE PATH "Path to OCL include directory")
 
 add_library(ll-1.m STATIC
-  src/tactic/construction_solver.cpp
-  src/tactic/contradiction_solver.cpp
-  src/solver/dtt_solver.cpp
-  src/tactic/induction_solver.cpp
+  src/tactics/construction_solver.cpp
+  src/tactics/contradiction_solver.cpp
+  src/solvers/dtt_solver.cpp
+  src/tactics/induction_solver.cpp
   src/training/basic_trainer+impl.cpp
-  src/solver/zfc_solver.cpp
+  src/solvers/zfc_solver.cpp
 )
 
 # ll_model.hpp includes <ocl/...> in its public interface, so OCL_INCLUDE_DIR
@@ -32,6 +32,10 @@ target_include_directories(ll-1.m PUBLIC
   include
   $<$<BOOL:${OCL_INCLUDE_DIR}>:${OCL_INCLUDE_DIR}>
 )
+
+if (DEFINED _COMMONCORE_USE_OCL)
+  target_compile_definitions(ll-1.m _LL_OCL)
+endif()
 
 target_compile_options(ll-1.m PRIVATE
   $<$<CXX_COMPILER_ID:Clang,GNU>:-Wall -Wextra -Wpedantic>

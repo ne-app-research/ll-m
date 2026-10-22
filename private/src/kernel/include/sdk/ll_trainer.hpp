@@ -12,8 +12,8 @@ namespace ll {
 
 namespace detail::constants {
   
-const inline double CAUCHY_DAMPING = 0.9;
-const inline double LEARNING_RATE = 1e-3;
+const inline real_type CAUCHY_DAMPING = 0.9;
+const inline real_type LEARNING_RATE = 1e-3;
 
 } // namespace detail::constants
 
@@ -28,20 +28,20 @@ struct _LL_API tensor_param final {
   tensor_param(tensor_param &&) = delete;
   tensor_param &operator=(tensor_param &&) = delete;
 
-  std::vector<double> T_i{};   // leaf factor
-  std::vector<double> T_ij{};  // mid factor
-  std::vector<double> T_ijk{}; // root factor
+  std::vector<real_type> T_i{};   // leaf factor
+  std::vector<real_type> T_ij{};  // mid factor
+  std::vector<real_type> T_ijk{}; // root factor
 
   // Returns the Fubini outer product as a flat weight vector.
-  std::vector<double> fold() const;
+  std::vector<real_type> fold() const;
 
   // Backpropagates a flat gradient through the outer product to factor
   // gradients. ∂L/∂T_i[c]   = Σ_{a,b} flat[a,b,c] · T_ijk[a] · T_ij[b]
   // ∂L/∂T_ij[b]  = Σ_{a,c} flat[a,b,c] · T_ijk[a] · T_i[c]
   // ∂L/∂T_ijk[a] = Σ_{b,c} flat[a,b,c] · T_ij[b]  · T_i[c]
-  void backprop(const std::vector<double> &flat_grad,
-                std::vector<double> &grad_i, std::vector<double> &grad_ij,
-                std::vector<double> &grad_ijk) const;
+  void backprop(const std::vector<real_type> &flat_grad,
+                std::vector<real_type> &grad_i, std::vector<real_type> &grad_ij,
+                std::vector<real_type> &grad_ijk) const;
 };
 
 // Preprint 2: Cauchy momentum update on the Riemannian manifold.
@@ -53,21 +53,21 @@ struct _LL_API tensor_param final {
 struct _LL_API cauchy_optimizer final {
   cauchy_optimizer() = default;
 
-  double m_eta_{detail::constants::LEARNING_RATE}; // learning rate
-  double m_gamma_{
+  real_type m_eta_{detail::constants::LEARNING_RATE}; // learning rate
+  real_type m_gamma_{
       detail::constants::CAUCHY_DAMPING}; // Cauchy damping coefficient
 
-  std::vector<double> m_velocity_{};
+  std::vector<real_type> m_velocity_{};
 
-  void step(std::vector<double> &theta, const std::vector<double> &grad,
-            const std::vector<double> &fisher_diag);
+  void step(std::vector<real_type> &theta, const std::vector<real_type> &grad,
+            const std::vector<real_type> &fisher_diag);
 };
 
 // Factor-level gradients produced by finite difference on the solver signal.
 struct _LL_API factor_grads_t final {
-  std::vector<double> d_i{};
-  std::vector<double> d_ij{};
-  std::vector<double> d_ijk{};
+  std::vector<real_type> d_i{};
+  std::vector<real_type> d_ij{};
+  std::vector<real_type> d_ijk{};
 };
 
 // Drives one training epoch: evaluate solver loss → factor gradients →
@@ -87,17 +87,17 @@ public:
   void add_theorem(const theorem_params &thm);
 
   // Runs one gradient step. Returns the current loss value.
-  double step();
+  real_type step();
 
   void train(const int &epochs);
 
 private:
   // Proof-status loss: proven → 0, inconclusive → 0.5, refuted/pending → 1.
   // Averaged over the stored theorem batch.
-  double loss_() const;
+  real_type loss_() const;
 
   // Perturbs each factor element in turn, calls loss_(), finite-differences.
-  factor_grads_t factor_grads_(const double &base_loss) const;
+  factor_grads_t factor_grads_(const real_type &base_loss) const;
 
   machine_model_priv &m_model_;
   solver_base &m_solver_;

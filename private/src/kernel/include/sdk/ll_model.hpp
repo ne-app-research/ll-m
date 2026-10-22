@@ -5,10 +5,12 @@
 
 #pragma once
 
+#ifdef _LL_OCL
 #include <ocl/scientific_fwd.hpp>
 #include <ocl/asio_fwd.hpp>
 #include <ocl/math_fwd.hpp>
 #include <ocl/asio_fwd.hpp>
+#endif
 
 #include <filesystem>
 #include <string>
@@ -20,13 +22,15 @@
 
 #ifndef _LL_API
 #ifdef _MSC_VER
-#define _LL_API __dllspec(dllexport)
+#define _LL_API __declspec(dllexport)
 #else
 #define _LL_API __attribute__((visibility("default")))
 #endif
 #endif
 
 namespace ll {
+
+using real_type = double;
 
 struct _LL_API machine_param_tree final {
   machine_param_tree() = default;
@@ -60,7 +64,7 @@ struct _LL_API machine_model_priv final {
 };
 
 enum class proof_strategy { induction, construction, contradiction, unknown };
-enum class proof_status   { pending, proven, refuted, inconclusive, unknown };
+enum class proof_status   { pending, proven, refuted, inconclusive, inconclusive_proven, unknown };
 
 class _LL_API theorem_params final {
 public:

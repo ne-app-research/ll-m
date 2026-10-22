@@ -37,9 +37,10 @@ private:
 class _LL_API construction_solver final : public solver_base {
 public:
   std::optional<proof_params> solve(const theorem_params &thm) override;
+  using real_type = double;
 
 private:
-  bool build_witness(const theorem_params &thm, proof_params &out) const;
+  construction_solver::real_type build_witness(const theorem_params &thm, proof_params &out) const;
 
   dtt_solver     m_dtt{};
   zfc_set_solver m_zfc{};
@@ -49,9 +50,10 @@ private:
 class _LL_API contradiction_solver final : public solver_base {
 public:
   std::optional<proof_params> solve(const theorem_params &thm) override;
+  using real_type = double;
 
 private:
-  bool find_contradiction(const theorem_params &thm, proof_params &out) const;
+  contradiction_solver::real_type find_contradiction(const theorem_params &thm, proof_params &out) const;
 
   zfc_set_solver m_zfc{};
 };

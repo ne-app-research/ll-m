@@ -10,39 +10,40 @@ namespace ll {
 using invalid_tensor_size = std::invalid_argument;
 
 /// @note this should have more granularity.
-static double status_to_loss(const proof_status &s) {
+static real_type status_to_loss(const proof_status &s) {
   switch (s) {
   case proof_status::proven:
-    return 0.0;
+    return _SSL_LOW_CONF;
   case proof_status::inconclusive:
-    return 0.5;
+    return _SSL_X_CONF(5);
   case proof_status::unknown:
   case proof_status::refuted:
   case proof_status::pending:
-    return 1.0;
+    return _SSL_HIGH_CONF;
   }
 
-  return 1.0;
+  return _SSL_X_CONF(2);
 }
 
 // --------------------------------------------------------------------
 
-std::vector<double> tensor_param::fold() const {
-  std::vector<double> out;
+std::vector<real_type> tensor_param::fold() const {
+  std::vector<real_type> out;
   out.reserve(T_i.size() * T_ij.size() * T_ijk.size());
 
-  for (double a : T_ijk)
-    for (double b : T_ij)
-      for (double c : T_i)
+  for (const real_type& a : T_ijk) {
+    for (const real_type& b : T_ij)
+      for (const real_type& c : T_i)
         out.push_back(a * b * c);
+  }
 
   return out;
 }
 
-void tensor_param::backprop(const std::vector<double> &flat_grad,
-                            std::vector<double> &grad_i,
-                            std::vector<double> &grad_ij,
-                            std::vector<double> &grad_ijk) const {
+void tensor_param::backprop(const std::vector<real_type> &flat_grad,
+                            std::vector<real_type> &grad_i,
+                            std::vector<real_type> &grad_ij,
+                            std::vector<real_type> &grad_ijk) const {
   const std::size_t ni = T_i.size();
   const std::size_t nij = T_ij.size();
   const std::size_t nijk = T_ijk.size();
@@ -60,7 +61,7 @@ void tensor_param::backprop(const std::vector<double> &flat_grad,
   for (std::size_t a{}; a < nijk; ++a) {
     for (std::size_t b{}; b < nij; ++b) {
       for (std::size_t c{}; c < ni; ++c, ++idx) {
-        const double& g = flat_grad[idx];
+        const real_type& g = flat_grad[idx];
         grad_i[c] += g * T_ijk[a] * T_ij[b];
         grad_ij[b] += g * T_ijk[a] * T_i[c];
         grad_ijk[a] += g * T_ij[b] * T_i[c];
@@ -71,16 +72,16 @@ void tensor_param::backprop(const std::vector<double> &flat_grad,
 
 // --------------------------------------------------------------------
 
-void cauchy_optimizer::step(std::vector<double> &theta,
-                            const std::vector<double> &grad,
-                            const std::vector<double> &fisher_diag) {
+void cauchy_optimizer::step(std::vector<real_type> &theta,
+                            const std::vector<real_type> &grad,
+                            const std::vector<real_type> &fisher_diag) {
   if (theta.empty()) return;
   
   if (m_velocity_.size() != theta.size())
     m_velocity_.assign(theta.size(), 0.0);
 
   for (std::size_t i{}; i < theta.size(); ++i) {
-    const double nat_grad = grad[i] / (fisher_diag[i] + 1e-8);
+    const real_type nat_grad = grad[i] / (fisher_diag[i] + 1e-8);
 
     m_velocity_[i] = m_gamma_ * m_velocity_[i] - m_eta_ * nat_grad;
     theta[i] += m_velocity_[i];
@@ -100,22 +101,22 @@ void basic_trainer::add_theorem(const theorem_params& thm) {
   m_batch_.push_back(std::move(thm));
 }
 
-double basic_trainer::loss_() const {
+real_type basic_trainer::loss_() const {
   if (m_batch_.empty())
     return 1.0;
 
-  double total{};
+  real_type total{};
 
   for (const auto &thm : m_batch_) {
     auto result = m_solver_.solve(thm);
     total += result.has_value() ? status_to_loss(result->status) : 1.0;
   }
 
-  return total / static_cast<double>(m_batch_.size());
+  return total / static_cast<real_type>(m_batch_.size());
 }
 
-factor_grads_t basic_trainer::factor_grads_(const double& base_loss) const {
-  constexpr double eps = 1e-5;
+factor_grads_t basic_trainer::factor_grads_(const real_type& base_loss) const {
+  constexpr real_type eps = 1e-5;
 
   factor_grads_t g;
   
@@ -149,15 +150,15 @@ factor_grads_t basic_trainer::factor_grads_(const double& base_loss) const {
 }
 
 /// @brief step over the training of the model
-double basic_trainer::step() {
-  const double loss = loss_();
+real_type basic_trainer::step() {
+  const real_type loss = loss_();
   const auto grads = factor_grads_(loss);
 
-  auto make_fisher = [](const std::vector<double> &g) {
+  auto make_fisher = [](const std::vector<real_type> &g) {
     if (g.empty())
-      return std::vector<double>{};
+      return std::vector<real_type>{};
 
-    std::vector<double> f(g.size());
+    std::vector<real_type> f(g.size());
 
     for (std::size_t i{}; i < g.size(); ++i)
       f[i] = g[i] * g[i];
