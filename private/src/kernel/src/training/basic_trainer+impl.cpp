@@ -4,6 +4,8 @@
 #include <sdk/ll_trainer.hpp>
 #include <ssl/sl_symbol.hpp>
 
+#ifdef _LL_TRAINER_BASIC
+
 namespace ll {
 
 /// @brief invalid tensor size alias.
@@ -183,3 +185,5 @@ void basic_trainer::train(const int& epochs) {
 }
 
 } // namespace ll
+
+#endif

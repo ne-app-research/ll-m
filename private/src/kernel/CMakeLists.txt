@@ -22,6 +22,7 @@ add_library(ll-1.m STATIC
   src/tactics/contradiction_solver.cpp
   src/solvers/dtt_solver.cpp
   src/tactics/induction_solver.cpp
+  src/training/riemannian_trainer+impl.cpp
   src/training/basic_trainer+impl.cpp
   src/solvers/zfc_solver.cpp
 )
@@ -32,6 +33,8 @@ target_include_directories(ll-1.m PUBLIC
   include
   $<$<BOOL:${OCL_INCLUDE_DIR}>:${OCL_INCLUDE_DIR}>
 )
+
+target_compile_definitions(ll-1.m _LL_TRAINER_BASIC)
 
 if (DEFINED _COMMONCORE_USE_OCL)
   target_compile_definitions(ll-1.m _LL_OCL)

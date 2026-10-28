@@ -20,6 +20,7 @@ bool dtt_solver::check(const std::vector<std::string> &hypotheses,
     return true;
 
   const std::string ih = "inductive_hypothesis: ";
+  
   for (const auto &h : hypotheses) {
     if (h.starts_with(ih) && h.substr(ih.size()) == conclusion)
       return true;
