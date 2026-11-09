@@ -27,7 +27,7 @@ target_include_directories(ll-1.m PUBLIC
   include
 )
 
-target_compile_definitions(ll-1.m _LL_TRAINER_STD)
+target_compile_definitions(ll-1.m PUBLIC _LL_TRAINER_STD)
 
 if (DEFINED _COMMONCORE_USE_OCL)
   target_compile_definitions(ll-1.m _LL_OCL)
