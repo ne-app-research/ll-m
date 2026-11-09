@@ -17,12 +17,22 @@
 #define _SSL_ZFC_NOT "¬"
 #define _SSL_ZFC_NULL "∅"
 #define _SSL_SET_INTEGER "ℤ"
+#define _SSL_SET_REAL "ℝ"
+#define _SSL_SET_COMPLEX "ℂ"
 #define _SSL_BELONGS_TO "∈"
+#define _SSL_ELEMENT_OF _SSL_BELONGS_TO
+#define _SSL_NOT_ELEMENT_OF "∉"
+#define _SSL_THERE_EXISTS "∃"
+#define _SSL_THERE_NOT_EXISTS "∄" 
 #define _SSL_NE "≠"
+#define _SSL_NOT_EQUAL _SSL_NE
 #define _SSL_EQ "="
+#define _SSL_EQUAL _SSL_EQ
 #define _SSL_SQR "√"
 #define _SSL_SQRT "√"
 
 #define _SSL_HIGH_CONF 1.0
 #define _SSL_LOW_CONF .0
 #define _SSL_X_CONF(X) 0.##X
+
+// EOF

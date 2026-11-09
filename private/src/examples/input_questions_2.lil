@@ -1,0 +1,13 @@
+(* Little Learner Interpreter, #2 *)
+
+(require 'proofreader)
+(require 'reader)
+(require 'lil)
+
+.(begin 2, 2) (* 2 readers, 2 proofreaders. *)
+.(add 2, 2)
+.(sub 2, 2)
+.(ask "Show me a tensor product decomposition for a order three tensors X and Y")
+.(end 2, 1) (* 1 proofreader still listening for future sequences. *)
+
+.(kill 0, 0) (* Kill all readers. *)

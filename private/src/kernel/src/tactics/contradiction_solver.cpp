@@ -57,3 +57,5 @@ contradiction_solver::solve(const theorem_params &thm) {
 }
 
 } // namespace ll
+
+// EOF

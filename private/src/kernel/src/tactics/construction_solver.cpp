@@ -39,6 +39,7 @@ construction_solver::solve(const theorem_params &thm) {
   
   out.theorem = thm;
   out.add_step("Strategy: construction.");
+  
   auto ret = build_witness(thm, out);
 
   if (ret == _SSL_LOW_CONF) {
@@ -53,3 +54,5 @@ construction_solver::solve(const theorem_params &thm) {
 }
 
 } // namespace ll
+
+// EOF

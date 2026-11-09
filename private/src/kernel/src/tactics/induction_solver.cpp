@@ -56,3 +56,5 @@ std::optional<proof_params> induction_solver::solve(const theorem_params &thm) {
 }
 
 } // namespace ll
+
+// EOF

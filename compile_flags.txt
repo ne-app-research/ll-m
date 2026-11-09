@@ -1,2 +1,4 @@
 -I./private/src/kernel/include/
 -std=c++20
+-D_LL_TRAINER_RIEMANN
+-D_LL_TRAINER_STD

@@ -89,7 +89,7 @@ public:
   // Runs one gradient step. Returns the current loss value.
   real_type step();
 
-  void train(const int &epochs);
+  void train(const int32_t &epochs);
 
 private:
   // Proof-status loss: proven → 0, inconclusive → 0.5, refuted/pending → 1.
@@ -107,3 +107,5 @@ private:
 };
 
 } // namespace ll
+
+// EOF

@@ -28,9 +28,11 @@ bool zfc_set_solver::validate(const std::string &expr) const {
   if (expr.find(NE_ZFC_NULL) != std::string::npos)
     return false;
 
-  // We have more axioms to implement now (AMLALE)
+  /// We have more axioms to implement now from there. (AMLALE)
 
   return true;
 }
 
 } // namespace ll
+
+// EOF

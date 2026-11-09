@@ -38,3 +38,5 @@ bool dtt_solver::check(const std::vector<std::string> &hypotheses,
 }
 
 } // namespace ll
+
+// EOF

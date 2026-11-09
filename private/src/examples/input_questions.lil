@@ -1,4 +1,4 @@
-(* LIttle Learner Interpreter, Sketch #1 *)
+(* Little Learner Interpreter, #1 *)
 
 (require 'proofreader)
 (require 'reader)

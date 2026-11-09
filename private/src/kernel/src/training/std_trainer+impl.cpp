@@ -1,15 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026, Ne.app.
 
+#include <filesystem>
 #include <sdk/ll_trainer.hpp>
 #include <ssl/sl_symbol.hpp>
+#include <stdexcept>
 
-#ifdef _LL_TRAINER_BASIC
+#ifdef _LL_TRAINER_STD
 
 namespace ll {
 
-/// @brief invalid tensor size alias.
+/// @brief Invalid tensor size alias.
 using invalid_tensor_size = std::invalid_argument;
+
+/// @brief Invalid training path alias
+using invalid_training_path = std::runtime_error;
 
 /// @note this should have more granularity.
 static real_type status_to_loss(const proof_status &s) {
@@ -64,6 +69,7 @@ void tensor_param::backprop(const std::vector<real_type> &flat_grad,
     for (std::size_t b{}; b < nij; ++b) {
       for (std::size_t c{}; c < ni; ++c, ++idx) {
         const real_type& g = flat_grad[idx];
+
         grad_i[c] += g * T_ijk[a] * T_ij[b];
         grad_ij[b] += g * T_ijk[a] * T_i[c];
         grad_ijk[a] += g * T_ij[b] * T_i[c];
@@ -90,10 +96,12 @@ void cauchy_optimizer::step(std::vector<real_type> &theta,
   }
 }
 
-// --------------------------------------------------------------------
+// -------------------------------------------------------------------- //
 
 basic_trainer::basic_trainer(machine_model_priv &model, solver_base &solver)
     : m_model_(model), m_solver_(solver) {
+  if (!std::filesystem::exists(model.m_training_path)) throw invalid_training_path(model.m_training_path);
+
   m_params_.T_i.assign(2, 0.1);
   m_params_.T_ij.assign(4, 0.1);
   m_params_.T_ijk.assign(4, 0.1);
@@ -148,13 +156,13 @@ factor_grads_t basic_trainer::factor_grads_(const real_type& base_loss) const {
     p.T_ijk[a] -= eps;
   }
 
-  return g;
+  return std::move(g);
 }
 
 /// @brief step over the training of the model
 real_type basic_trainer::step() {
-  const real_type loss = loss_();
-  const auto grads = factor_grads_(loss);
+  const real_type loss = this->loss_();
+  const auto grads = this->factor_grads_(loss);
 
   auto make_fisher = [](const std::vector<real_type> &g) {
     if (g.empty())
@@ -178,12 +186,14 @@ real_type basic_trainer::step() {
 
 /// @brief train geometric data until e is reached.
 /// @param epochs max epoch to be considered reachable.
-void basic_trainer::train(const int& epochs) {
+void basic_trainer::train(const int32_t& epochs) {
   for (std::int32_t e{}; e < epochs; ++e) {
-    if (step() == e) break;
+    this->step();
   }
 }
 
 } // namespace ll
 
 #endif
+
+// EOF

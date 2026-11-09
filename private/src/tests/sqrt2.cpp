@@ -26,3 +26,5 @@ int main(int, char **) {
   t.add_theorem(thm);
   t.train(1000);
 }
+
+// EOF
